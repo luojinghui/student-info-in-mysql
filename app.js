@@ -1,8 +1,8 @@
-var mysql = require('mysql');
 var express = require('express');
 var app = express();
 var ejs = require('ejs');
 var bodyParser = require('body-parser');
+var connectMysql = require("./public/config-mysql.js");
 
 app.engine('.html',ejs.__express);
 app.set('view engine', 'html');
@@ -13,29 +13,13 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.get('/',function(req,res) {
-    res.render('index',{});
+    res.render('index');
 });
 
-function connectMysql() {
-    return mysql.createConnection({
-        host : 'localhost',
-        user : 'root',
-        password : '',
-        database : 'student',
-        port : 3306
-    });
-}
-
-app.get("/score", function(req, res){
+app.get("/getStudentNams", function(req, res){
     var client = connectMysql();
+
     client.connect();
-
-    // var TABLE = 'student_name';
-    // client.query('INSERT INTO ' + TABLE + ' SET student_id ' + 88,
-    //     function(err, results){
-    //         console.log("connect to mysql success!");
-    // });
-
     client.query(' SELECT * FROM student_name ',
         function(err, results){
             res.send(results);
@@ -43,28 +27,33 @@ app.get("/score", function(req, res){
     });
 });
 
-app.delete("/deleteId",function(req,res) {
+app.delete("/deleteStudnetName",function(req,res) {
     var id = req.body.id;
-    console.log(id);
-
     var client = connectMysql();
+
     client.connect();
 
     client.query('delete from student_name where student_id=' + id ,
-        function(err,results) {})
+        function(err,results) {
+            console.log(results);
+        })
     client.end();
+    res.end();
 })
 
-app.post("/addInfo",function(req,res) {
+app.post("/addStudentName",function(req,res) {
     var client = connectMysql();
     client.connect();
 
     var student_name = req.body.name;
 
     client.query("INSERT INTO student_name(student_name) values('" + student_name + "')",function(err) {
-        if(err) throw err;
+        if(err){
+            alert("添加数据失败");
+        };
     })
     client.end();
+    res.end();
 })
 
 
