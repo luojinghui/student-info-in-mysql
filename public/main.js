@@ -2,37 +2,36 @@ var initTable = function(data) {
     $('#tab').empty();
     $(function() {
         [].forEach.call(data, function(val) {
-            $("<tr>" + "<th id=" + val.student_id + ">" + "delete" + "<th>" + val.student_id + "<th>" + val.student_name + "</tr></th>").appendTo("#tab");
+            $("<tr><th>" + val.student_id + "<th>" + val.student_name + "<th class=del" + " "+ "data-id=" + val.student_id + ">" + "delete"  + "</tr></th>").appendTo("#tab");
         })
     })
 }
 var displayInfo = function() {
     $.get("/getStudentNams", {}, function(data) {
-        initTable(data);
+        if(data.status === 200) {
+            initTable(data.data);
+        }
     });
 }
 
 $(function() {
     displayInfo();
 
-    $("#tab").on("click", function(event) {
-        var id = event.target.id;
-
-        if (id === "") {
-            return;
-        }
+    $("#tab").on("click",".del", function() {
+        // var id = event.target.id;
+        var id = $(this).data("id");
+        // console.log(id);
 
         if (confirm("你确信要删除此条数据吗？")) {
 
             $.ajax({
-                url: '/deleteStudnetName',
+                url: '/deleteStudnetName/' + id,
                 type: 'delete',
-                data: {
-                    id: id
+                success:function() {
+                    displayInfo();
                 }
             })
-            displayInfo();
-        } else {}
+        }
     })
 
     $("#button").on("click", function(event) {
@@ -40,8 +39,8 @@ $(function() {
 
         $.post("/addStudentName", {
             name: name
-        }, function() {})
-
-        displayInfo();
+        }, function() {
+            displayInfo();
+        })
     })
 })

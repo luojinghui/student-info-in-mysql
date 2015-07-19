@@ -22,20 +22,24 @@ app.get("/getStudentNams", function(req, res){
     client.connect();
     client.query(' SELECT * FROM student_name ',
         function(err, results){
-            res.send(results);
+            res.send({
+                status:200,
+                data  :results,
+                message : ""
+            });
             client.end();
     });
 });
 
-app.delete("/deleteStudnetName",function(req,res) {
-    var id = req.body.id;
+app.delete("/deleteStudnetName/:id",function(req,res) {
+    var id = req.params.id;
+    // console.log(id);
     var client = connectMysql();
 
     client.connect();
 
     client.query('delete from student_name where student_id=' + id ,
         function(err,results) {
-            console.log(results);
         })
     client.end();
     res.end();
